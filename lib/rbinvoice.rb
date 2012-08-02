@@ -75,9 +75,8 @@ module RbInvoice
       opt :no_data_dir, "Don't read or write to a data dir", :default => false
       opt :invoice_number, "Use a specific invoice number", :type => :int, :short => '-n'
       opt :no_write_invoice_number, "Record the invoice number", :default => false
-      
     end
-    Trollop::die :client, "must be given" unless argv.size > 0
+    Trollop::die "client must be given" unless argv.size > 0
     opts[:client] = argv.shift
 
     read_rc_file(opts) unless opts[:no_rcfile]
@@ -88,7 +87,7 @@ module RbInvoice
       opts[:out_filename] = default_out_filename(opts)
       opts[:used_default_out_filename] = true     # TODO if this is set and not quiet, then print the name of the file we wrote to: "Wrote invoice to #{out_filename}"
     end
-    Trollop::die :output_filename, "must be given" unless opts[:out_filename]
+    Trollop::die "can't infer output filename; please provide one" unless opts[:out_filename]
 
     return opts[:client], opts[:out_filename], opts
   end
