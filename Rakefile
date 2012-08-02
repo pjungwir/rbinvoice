@@ -23,6 +23,7 @@ Jeweler::Tasks.new do |gem|
   EOT
   gem.email = "pj@illuminatedcomputing.com"
   gem.authors = ["Paul A. Jungwirth"]
+  gem.executables << 'rbinvoice'
   # dependencies defined in Gemfile
 end
 Jeweler::RubygemsDotOrgTasks.new

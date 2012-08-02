@@ -31,7 +31,7 @@ module RbInvoice
     end
   end
 
-  def self.write_invoice
+  def self.write_invoice(client, filename, opts)
   end
 
   def self.read_rc_file(opts)
@@ -56,6 +56,7 @@ module RbInvoice
 
   def self.parse_command_line(argv)
     opts = Trollop::options(argv) do
+      version "rbinvoice 0.1.0 (c) 2012 Paul A. Jungwirth"
       banner <<-EOH
         USAGE: rbinvoice [options] <client> [filename]
           Options:
