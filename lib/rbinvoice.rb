@@ -26,6 +26,12 @@ module RbInvoice
   def self.dot_rbinvoice_dir(opts)
   end
 
+  def self.read_with_yaml(text)
+    Hash[
+      (YAML::load(text) || {}).map {|k, v| [k.to_sym, v]}
+    ]
+  end
+
   def self.read_data_dir(opts)
     if File.exist?(opts[:data_dir])
       return parse_data_dir(File.read(opts[:data_dir]), opts)
@@ -35,13 +41,9 @@ module RbInvoice
   end
 
   def self.parse_data_dir(text, opts)
-    if text
-      # Expected keys include:
-      #   max_invoice_number
-      return YAML::load(text)
-    else
-      return nil
-    end
+    # Expected keys include:
+    #   max_invoice_number
+    text ? read_with_yaml(text) : {}
   end
 
   def self.write_invoice(client, filename, opts)
@@ -53,10 +55,21 @@ module RbInvoice
     # Don't apply the default until now
     # so we know if the user requested one specifically or not:
     opts[:rcfile] ||= default_rc_file
-    parse_rc_file(File.read(opts[:rcfile])) if File.exist?(opts[:rcfile])
+
+    if File.exist?(opts[:rcfile])
+      return parse_rc_file(File.read(opts[:rcfile]), opts)
+    else
+      return opts
+    end
   end
 
   def self.parse_rc_file(text, opts)
+    rc = (text ? read_with_yaml(text) : {})
+    %w{spreadsheet}.each do |key|
+      key = key.to_sym
+      opts[key] ||= rc[key]
+    end
+    return opts
   end
 
   def self.default_out_dir(opts)
@@ -83,18 +96,25 @@ module RbInvoice
             --spreadsheet=<url>                      Pull data from <url>.
       EOH
       opt :help, "Show a help message"
-      opt :rcfile, "Use an rc file other than ~/.rbinvoicerc"
-      opt :no_rcfile, "Don't read an rc file", :default => false
-      opt :data_dir, "Use a data dir other than ~/.rbinvoice", :default => RbInvoice.default_data_dir
-      opt :no_data_dir, "Don't read or write to a data dir", :default => false
+
+      opt :rcfile, "Use an rc file other than ~/.rbinvoicerc", :short => '-r'
+      opt :no_rcfile, "Don't read an rc file", :default => false, :short => '-R'
+
+      opt :data_dir, "Use a data dir other than ~/.rbinvoice", :default => RbInvoice.default_data_dir, :short => '-d'
+      opt :no_data_dir, "Don't read or write to a data dir", :default => false, :short => '-D'
+
       opt :invoice_number, "Use a specific invoice number", :type => :int, :short => '-n'
-      opt :no_write_invoice_number, "Record the invoice number", :default => false
+      opt :no_write_invoice_number, "Record the invoice number", :default => false, :short => '-N'
+
+      opt :spreadsheet, :type => String, :short => '-s'
     end
     Trollop::die "client must be given" unless argv.size > 0
     opts[:client] = argv.shift
 
     read_rc_file(opts) unless opts[:no_rcfile]
     read_data_dir(opts) unless opts[:no_data_dir]
+
+    Trollop::die "can't determine hourly spreadsheet" unless opts[:spreadsheet]
 
     opts[:out_filename] = argv.shift
     if not opts[:out_filename]
