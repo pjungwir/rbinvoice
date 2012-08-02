@@ -101,7 +101,7 @@ module RbInvoice
         opt :invoice_number, "Use a specific invoice number", :type => :int, :short => '-n'
         opt :no_write_invoice_number, "Record the invoice number", :default => false, :short => '-N'
 
-        opt :spreadsheet, :type => String, :short => '-s'
+        opt :spreadsheet, "Read the given spreadsheet URL", :type => :string, :short => '-s'
       end
       Trollop::die "client must be given" unless argv.size > 0
       opts[:client] = argv.shift

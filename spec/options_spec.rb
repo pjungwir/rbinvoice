@@ -37,10 +37,18 @@ describe RbInvoice::Options do
     }.should raise_error SystemExit
   end
 
+  it "should use the spreadsheet URL from --spreadsheet" do
+    client, out_filename, opts = RbInvoice::Options::parse_command_line(%w{--spreadsheet=foo my-client outfile})
+    opts[:spreadsheet].should == 'foo'
+
+    client, out_filename, opts = RbInvoice::Options::parse_command_line(%w{-s foo my-client outfile})
+    opts[:spreadsheet].should == 'foo'
+  end
+
   it "should use the spreadsheet URL from .rbinvoicerc" do
     File.open("#{@tmpdir}/.rbinvoicerc", 'w') { |f| f.write("spreadsheet: http://foo") }
-      client, out_filename, opts = RbInvoice::Options::parse_command_line(%w{my-client outfile})
-      opts[:spreadsheet].should == 'http://foo'
+    client, out_filename, opts = RbInvoice::Options::parse_command_line(%w{my-client outfile})
+    opts[:spreadsheet].should == 'http://foo'
   end
 
 end
