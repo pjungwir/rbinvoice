@@ -4,8 +4,21 @@ require 'trollop'
 
 module RbInvoice
 
-  DEFAULT_RC_FILE = File.join(ENV['HOME'] || '.', '.rbinvoicerc')
-  DEFAULT_DATA_DIR  = File.join(ENV['HOME'] || '.', '.rbinvoice')
+  # This is a method rather than a constant
+  # so that we don't evaulate ENV['HOME']
+  # until it's called. That makes it possible
+  # for tests to set ENV['HOME'] before running the code.
+  def self.default_rc_file
+    File.join(ENV['HOME'] || '.', '.rbinvoicerc')
+  end
+
+  # This is a method rather than a constant
+  # so that we don't evaulate ENV['HOME']
+  # until it's called. That makes it possible
+  # for tests to set ENV['HOME'] before running the code.
+  def self.default_data_dir
+    File.join(ENV['HOME'] || '.', '.rbinvoice')
+  end
 
   def self.write_dot_rbinvoice_dir(dir)
   end
@@ -39,7 +52,7 @@ module RbInvoice
 
     # Don't apply the default until now
     # so we know if the user requested one specifically or not:
-    opts[:rcfile] ||= DEFAULT_RC_FILE
+    opts[:rcfile] ||= default_rc_file
     parse_rc_file(File.read(opts[:rcfile])) if File.exist?(opts[:rcfile])
   end
 
@@ -72,7 +85,7 @@ module RbInvoice
       opt :help, "Show a help message"
       opt :rcfile, "Use an rc file other than ~/.rbinvoicerc"
       opt :no_rcfile, "Don't read an rc file", :default => false
-      opt :data_dir, "Use a data dir other than ~/.rbinvoice", :default => DEFAULT_DATA_DIR
+      opt :data_dir, "Use a data dir other than ~/.rbinvoice", :default => RbInvoice.default_data_dir
       opt :no_data_dir, "Don't read or write to a data dir", :default => false
       opt :invoice_number, "Use a specific invoice number", :type => :int, :short => '-n'
       opt :no_write_invoice_number, "Record the invoice number", :default => false
