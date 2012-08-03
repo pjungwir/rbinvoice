@@ -1,0 +1,55 @@
+\documentclass[12pt]{article}
+
+\pagestyle{empty}
+
+\begin{document}
+
+% \section*{Invoice 12/31/2007}
+
+\noindent
+\begin{minipage}[t]{3in}
+Paul Jungwirth \\
+2520 SW Edgemoor Ave. \\
+Beaverton, OR 97005 \\
+909 557-0421 \\
+\end{minipage}
+\begin{minipage}[t]{1.9in}
+\begin{flushright}
+{\Large \textbf{Invoice}} \\
+\# {{ invoice_number }} \\
+{{ invoice_date }} \\
+\end{flushright}
+\end{minipage} \\
+{% raw %}
+% \makebox[3.9in][r]{{\Large \textbf{Invoice}} \\ 31 December 2007} \\
+{% endraw %}
+
+\noindent {\sc to}: \\
+OK Venue LLC \\
+116 W 23rd St. \\
+New York, NY 10011 \\
+\smallskip
+
+\noindent {\sc for}: \\
+Consulting and programming for the okvenue.com website and related projects. \\
+\linebreak[4]
+
+\begin{tabular}{lrr}
+\textbf{Description} & \textbf{Hours} & \textbf{Cost} \\
+\hline
+{% for item in line_items %}
+  {{ item.name }} & {{ item.duration }} & \${{ item.price }} \\ {% endfor %}
+\textbf{Total:} & {{ total_duration }} & \${{ total_price }} \\
+\end{tabular}
+
+\bigskip
+
+\noindent
+Please make all checks payable to Paul Jungwirth. \\
+Payment due net 30 days. \\
+
+\begin{center}
+\textbf{Thank you for your business!}
+\end{center}
+
+\end{document}

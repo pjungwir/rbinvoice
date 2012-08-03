@@ -3,6 +3,26 @@ require 'trollop'
 module RbInvoice
   module Options
 
+    def self.symbolize_array(arr)
+      arr.map{|x|
+        case x
+        when Hash; symbolize_hash(x)
+        when Array; symbolize_array(x)
+        else x
+        end
+      }
+    end
+
+    def self.symbolize_hash(h)
+      h.each_with_object({}) {|(k,v), h|
+        h[k.to_sym] = case v
+                      when Hash; symbolize_hash(v)
+                      when Array; symbolize_array(v)
+                      else; v
+                      end
+      }
+    end
+
     # This is a method rather than a constant
     # so that we don't evaulate ENV['HOME']
     # until it's called. That makes it possible
@@ -26,14 +46,15 @@ module RbInvoice
     end
 
     def self.read_with_yaml(text)
-      Hash[
-        (YAML::load(text) || {}).map {|k, v| [k.to_sym, v]}
-      ]
+      symbolize_hash(YAML::load(text) || {})
     end
 
     def self.read_data_dir(opts)
       if File.exist?(opts[:data_dir])
-        return parse_data_dir(File.read(opts[:data_dir]), opts)
+        ret = parse_data_dir(File.read(opts[:data_dir]), opts)
+        client = ret[:clients].select{|x| x[:key] == opts[:client]}.first
+        ret[:rate] = client[:rate] if client
+        return ret
       else
         return {}
       end

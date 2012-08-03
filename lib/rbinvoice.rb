@@ -1,9 +1,12 @@
+require 'date'
+require 'bigdecimal'
 require 'trollop'
 require 'roo'
 # require 'prawn'
 
 require 'rbinvoice/options'
 require 'roo'
+require 'liquid'
 
 module RbInvoice
 
@@ -21,9 +24,48 @@ module RbInvoice
   def self.write_invoice(client, start_date, end_date, filename, opts)
     if start_date and end_date
       tasks = hourly_breakdown(client, start_date, end_date, opts)
+      make_pdf(tasks, start_date, end_date, filename, opts)
     else
       # TODO: Write all the outstanding spreadsheets
     end
+  end
+
+  def self.make_pdf(tasks, start_date, end_date, filename, opts)
+    write_latex(tasks, end_date, filename, opts)
+    `cd "#{File.dirname(filename)}" && pdflatex "#{File.basename(filename, '.pdf')}"`
+  end
+
+  def self.escape_for_latex(str)
+    str.gsub('&', '\\\\&')   # tricky b/c '\&' has special meaning to gsub.
+  end
+
+  def self.write_latex(tasks, invoice_date, filename, opts)
+    template = File.open(File.join(File.dirname(__FILE__), '..', 'templates', 'invoice.tex.liquid')) { |f| f.read }
+    rate = opts[:data][:rate]    # TODO: Support per-task rates
+    items = tasks.map{|task, details|
+      task_total_hours = details.inject(0) {|t, row| t + row[2]}
+      {
+        'name' => escape_for_latex(task),
+        'duration_decimal' => task_total_hours,
+        'duration' => decimal_to_interval(task_total_hours),
+        'price_decimal' => task_total_hours * rate,
+        'price' => "%0.02f" % (task_total_hours * rate)
+      }
+    }
+
+
+    args = Hash[
+      {
+        invoice_number: opts[:invoice_number],
+        invoice_date: invoice_date.strftime("%d %B %Y"),
+        line_items: items,
+        total_duration: decimal_to_interval(items.inject(0) {|t, item| t + item['duration_decimal']}),
+        total_price: "%0.02f" % items.inject(0) {|t, item| t + item['price_decimal']},
+      }.map{|k, v| [k.to_s, v]}
+    ]
+    latex = Liquid::Template.parse(template).render args
+    puts filename
+    File.open("#{filename.gsub(/\.pdf$/, '')}.tex", 'w') { |f| f.write(latex) }
   end
 
   def self.hourly_breakdown(client, start_date, end_date, opts)
@@ -49,8 +91,18 @@ module RbInvoice
     return 3.upto(ss.last_row).select { |row|
       (ss.cell(row, COL_CLIENT) || '').downcase.gsub(' ', '') == client
     }.map { |row|
-      [ss.cell(row, COL_DATE), ss.cell(row, COL_TASK), ss.cell(row, COL_TOTAL_TIME)]
+      [ss.cell(row, COL_DATE), ss.cell(row, COL_TASK), interval_to_decimal(ss.cell(row, COL_TOTAL_TIME))]
     }
+  end
+
+  def self.interval_to_decimal(time)
+    return nil unless time
+    d = Date._strptime(time, "%H:%M")
+    BigDecimal.new(d[:hour] * 60 + d[:min]) / 60
+  end
+
+  def self.decimal_to_interval(time)
+    "%d:%02d" % [time.to_i, (60*time) % 60]
   end
 
   def self.select_date_range(start_date, end_date, hours)

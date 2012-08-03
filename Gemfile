@@ -6,6 +6,7 @@ source "http://rubygems.org"
 gem 'trollop'
 gem 'roo'
 gem 'prawn'
+gem 'liquid'
 
 # Add dependencies to develop your gem here.
 # Include everything needed to run rake, tests, features, etc.
