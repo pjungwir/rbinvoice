@@ -61,7 +61,7 @@ module RbInvoice
 
     def self.parse_rc_file(text, opts)
       rc = (text ? read_with_yaml(text) : {})
-      %w{spreadsheet}.each do |key|
+      %w{spreadsheet spreadsheet_user spreadsheet_password}.each do |key|
         key = key.to_sym
         opts[key] ||= rc[key]
       end
@@ -73,6 +73,11 @@ module RbInvoice
 
     # Looks in ~/.rbinvoice 
     def self.default_out_filename(opts)
+      if opts[:client] and opts[:data][:last_invoice]
+        "invoice-#{opts[:data][:last_invoice].to_i + 1}-#{opts[:client]}.pdf"
+      else
+        nil
+      end
     end
 
     def self.parse_command_line(argv)
@@ -107,7 +112,7 @@ module RbInvoice
       opts[:client] = argv.shift
 
       read_rc_file(opts) unless opts[:no_rcfile]
-      opts[:data] = read_data_dir(opts) unless opts[:no_data_dir]
+      opts[:data] = opts[:no_data_dir] ? {} : read_data_dir(opts)
 
       Trollop::die "can't determine hourly spreadsheet" unless opts[:spreadsheet]
 

@@ -52,3 +52,9 @@ Rake::RDocTask.new do |rdoc|
   rdoc.rdoc_files.include('README*')
   rdoc.rdoc_files.include('lib/**/*.rb')
 end
+
+task :run, [] => [] do |t, args|
+  require 'rbinvoice'
+  RbInvoice::write_invoice(*RbInvoice::Options::parse_command_line(%w{okvenue}))
+end
+
