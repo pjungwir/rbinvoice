@@ -1,27 +1,8 @@
 require 'trollop'
+require 'rbinvoice/util'
 
 module RbInvoice
   module Options
-
-    def self.symbolize_array(arr)
-      arr.map{|x|
-        case x
-        when Hash; symbolize_hash(x)
-        when Array; symbolize_array(x)
-        else x
-        end
-      }
-    end
-
-    def self.symbolize_hash(h)
-      h.each_with_object({}) {|(k,v), h|
-        h[k.to_sym] = case v
-                      when Hash; symbolize_hash(v)
-                      when Array; symbolize_array(v)
-                      else; v
-                      end
-      }
-    end
 
     # This is a method rather than a constant
     # so that we don't evaulate ENV['HOME']
@@ -35,23 +16,18 @@ module RbInvoice
     # so that we don't evaulate ENV['HOME']
     # until it's called. That makes it possible
     # for tests to set ENV['HOME'] before running the code.
-    def self.default_data_dir
+    def self.default_data_file
       File.join(ENV['HOME'] || '.', '.rbinvoice')
     end
 
-    def self.write_dot_rbinvoice_dir(dir)
+    def self.write_data_file(opts)
+      # Add the new invoice to the list of client invoices.
+      File.open(opts[:data_file], 'w') { |f| f.puts YAML::dump(opts[:data]) }
     end
 
-    def self.dot_rbinvoice_dir(opts)
-    end
-
-    def self.read_with_yaml(text)
-      symbolize_hash(YAML::load(text) || {})
-    end
-
-    def self.read_data_dir(opts)
-      if File.exist?(opts[:data_dir])
-        ret = parse_data_dir(File.read(opts[:data_dir]), opts)
+    def self.read_data_file(opts)
+      if File.exist?(opts[:data_file])
+        ret = parse_data_file(File.read(opts[:data_file]), opts)
         client = ret[:clients].select{|x| x[:key] == opts[:client]}.first
         ret[:rate] = client[:rate] if client
         return ret
@@ -60,10 +36,8 @@ module RbInvoice
       end
     end
 
-    def self.parse_data_dir(text, opts)
-      # Expected keys include:
-      #   max_invoice_number
-      text ? read_with_yaml(text) : {}
+    def self.parse_data_file(text, opts)
+      text ? RbInvoice::Util::read_with_yaml(text) : {}
     end
 
     def self.read_rc_file(opts)
@@ -81,7 +55,7 @@ module RbInvoice
     end
 
     def self.parse_rc_file(text, opts)
-      rc = (text ? read_with_yaml(text) : {})
+      rc = (text ? RbInvoice::Util::read_with_yaml(text) : {})
       %w{spreadsheet spreadsheet_user spreadsheet_password}.each do |key|
         key = key.to_sym
         opts[key] ||= rc[key]
@@ -110,10 +84,10 @@ module RbInvoice
               -h, --help                               Print this message.
               --rcfile=<filename>                      Use an rc file other than ~/.rbinvoicerc.
               --no-rcfile                              Don't read an rc file.
-              --data-dir=<dirname>                     Use a data dir other than ~/.rbinvoice.
-              --no-data-dir                            Don't read or write to a data dir.
+              --data-file=<dirname>                    Use a data file other than ~/.rbinvoice.
+              --no-data-file                           Don't read or write to a data file.
               --invoice-number=<n>                     Use a specific invoice number.
-              --no-write-invoice-number                Record the invoice number.
+              --no-write-invoice-number                Don't record the invoice number.
               --spreadsheet=<url>                      Pull data from <url>.
         EOH
         opt :help, "Show a help message"
@@ -121,8 +95,8 @@ module RbInvoice
         opt :rcfile, "Use an rc file other than ~/.rbinvoicerc", :short => '-r'
         opt :no_rcfile, "Don't read an rc file", :default => false, :short => '-R'
 
-        opt :data_dir, "Use a data dir other than ~/.rbinvoice", :default => RbInvoice::Options.default_data_dir, :short => '-d'
-        opt :no_data_dir, "Don't read or write to a data dir", :default => false, :short => '-D'
+        opt :data_file, "Use a data dir other than ~/.rbinvoice", :default => RbInvoice::Options.default_data_file, :short => '-d'
+        opt :no_data_file, "Don't read or write to a data file", :default => false, :short => '-D'
 
         opt :invoice_number, "Use a specific invoice number", :type => :int, :short => '-n'
         opt :no_write_invoice_number, "Record the invoice number", :default => false, :short => '-N'
@@ -135,7 +109,7 @@ module RbInvoice
       opts[:client] = argv.shift
 
       read_rc_file(opts) unless opts[:no_rcfile]
-      opts[:data] = opts[:no_data_dir] ? {} : read_data_dir(opts)
+      opts[:data] = opts[:no_data_file] ? {} : read_data_file(opts)
 
       Trollop::die "can't determine hourly spreadsheet" unless opts[:spreadsheet]
 

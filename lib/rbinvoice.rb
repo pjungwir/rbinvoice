@@ -17,6 +17,25 @@ module RbInvoice
   COL_END_TIME   = 'F'
   COL_TOTAL_TIME = 'G'
 
+  # TODO:
+  #   - Figure out the next invoice_number.
+  #   - Record the invoice & the new invoice_number.
+  #   - Default dir for the tex & pdf files.
+
+  class Invoice
+    # inputs:
+    #   client key
+    #   invoice #
+    #   start_date
+    #   end_date
+    #   filename
+    #
+    # derived:
+    #   client name
+    #   rate
+    #   tasks
+  end
+
   def self.parse_date(str)
     Date.strptime(str, "%m/%d/%Y")
   end
