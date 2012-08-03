@@ -107,6 +107,8 @@ module RbInvoice
         opt :no_write_invoice_number, "Record the invoice number", :default => false, :short => '-N'
 
         opt :spreadsheet, "Read the given spreadsheet URL", :type => :string, :short => '-s'
+        opt :start_date, "Date to begin the invoice (m/d/yyyy)", :type => :string
+        opt :end_date, "Date to end the invoice (m/d/yyyy)", :type => :string
       end
       Trollop::die "client must be given" unless argv.size > 0
       opts[:client] = argv.shift
@@ -123,7 +125,12 @@ module RbInvoice
       end
       Trollop::die "can't infer output filename; please provide one" unless opts[:out_filename]
 
-      return opts[:client], opts[:out_filename], opts
+      opts[:start_date] = '7/15/2012'
+      opts[:end_date] = '7/31/2012'
+      opts[:start_date] = RbInvoice::parse_date(opts[:start_date])
+      opts[:end_date] = RbInvoice::parse_date(opts[:end_date])
+
+      return opts[:client], opts[:start_date], opts[:end_date], opts[:out_filename], opts
     end
 
   end
