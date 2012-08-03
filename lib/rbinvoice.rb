@@ -1,7 +1,6 @@
 require 'date'
 require 'bigdecimal'
 require 'trollop'
-require 'roo'
 # require 'prawn'
 
 require 'rbinvoice/options'
@@ -38,6 +37,12 @@ module RbInvoice
 
   def self.parse_date(str)
     Date.strptime(str, "%m/%d/%Y")
+  end
+
+  def self.write_invoices(arr)
+    arr.each do |job|
+      write_invoice(*job)
+    end
   end
 
   def self.write_invoice(client, start_date, end_date, filename, opts)

@@ -1,3 +1,3 @@
 #!/usr/bin/env ruby
 require 'rbinvoice'
-RbInvoice::write_invoice(*RbInvoice::Options::parse_command_line(ARGV))
+RbInvoice::write_invoices(RbInvoice::Options::parse_command_line(ARGV))

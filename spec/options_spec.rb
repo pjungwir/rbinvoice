@@ -14,7 +14,8 @@ describe RbInvoice::Options do
   end
 
   it "should have good defaults" do
-    client, start_date, end_date, out_filename, opts = RbInvoice::Options::parse_command_line(%w{--spreadsheet=foo my-client outfile})
+    ret = RbInvoice::Options::parse_command_line(%w{--spreadsheet=foo my-client outfile})[0]
+    (client, start_date, end_date, out_filename, opts) = RbInvoice::Options::parse_command_line(%w{--spreadsheet=foo my-client outfile})[0]
     client.should == 'my-client'
     out_filename.should == 'outfile'
 
@@ -38,16 +39,16 @@ describe RbInvoice::Options do
   end
 
   it "should use the spreadsheet URL from --spreadsheet" do
-    client, start_date, end_date, out_filename, opts = RbInvoice::Options::parse_command_line(%w{--spreadsheet=foo my-client outfile})
+    client, start_date, end_date, out_filename, opts = *RbInvoice::Options::parse_command_line(%w{--spreadsheet=foo my-client outfile})[0]
     opts[:spreadsheet].should == 'foo'
 
-    client, start_date, end_date, out_filename, opts = RbInvoice::Options::parse_command_line(%w{-s foo my-client outfile})
+    client, start_date, end_date, out_filename, opts = *RbInvoice::Options::parse_command_line(%w{-s foo my-client outfile})[0]
     opts[:spreadsheet].should == 'foo'
   end
 
   it "should use the spreadsheet URL from .rbinvoicerc" do
     File.open("#{@tmpdir}/.rbinvoicerc", 'w') { |f| f.write("spreadsheet: http://foo") }
-    client, start_date, end_date, out_filename, opts = RbInvoice::Options::parse_command_line(%w{my-client outfile})
+    client, start_date, end_date, out_filename, opts = *RbInvoice::Options::parse_command_line(%w{my-client outfile})[0]
     opts[:spreadsheet].should == 'http://foo'
   end
 
