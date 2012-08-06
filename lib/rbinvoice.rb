@@ -21,20 +21,6 @@ module RbInvoice
   #   - Record the invoice & the new invoice_number.
   #   - Default dir for the tex & pdf files.
 
-  class Invoice
-    # inputs:
-    #   client key
-    #   invoice #
-    #   start_date
-    #   end_date
-    #   filename
-    #
-    # derived:
-    #   client name
-    #   rate
-    #   tasks
-  end
-
   def self.parse_date(str)
     Date.strptime(str, "%m/%d/%Y")
   end
@@ -102,6 +88,10 @@ module RbInvoice
     return g
   end
 
+  def self.to_client_key(client)
+    client.downcase.gsub(' ', '')
+  end
+
   def self.read_all_hours(client, opts)
     ss = nil
     begin
@@ -111,9 +101,9 @@ module RbInvoice
       exit 1
     end
 
-    client = client.downcase.gsub(' ', '')
+    client = to_client_key(client)
     return 3.upto(ss.last_row).select { |row|
-      (ss.cell(row, COL_CLIENT) || '').downcase.gsub(' ', '') == client
+      to_client_key(ss.cell(row, COL_CLIENT) || '') == client
     }.map { |row|
       [ss.cell(row, COL_DATE), ss.cell(row, COL_TASK), interval_to_decimal(ss.cell(row, COL_TOTAL_TIME))]
     }

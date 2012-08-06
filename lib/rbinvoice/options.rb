@@ -28,8 +28,11 @@ module RbInvoice
     def self.read_data_file(opts)
       if File.exist?(opts[:data_file])
         ret = parse_data_file(File.read(opts[:data_file]), opts)
-        client = ret[:clients].select{|x| x[:key] == opts[:client]}.first
-        ret[:rate] = client[:rate] if client
+        client = all_clients(ret).select{|x| x[:key] == opts[:client]}.first
+        if client
+          client = client.select{|x| x[:key] == opts[:client]}.first
+          ret[:rate] = client[:rate] if client
+        end
         return ret
       else
         return {}
@@ -75,6 +78,35 @@ module RbInvoice
       end
     end
 
+    def self.all_clients(data)
+      data[:clients] || []
+    end
+
+    def self.last_invoice_number(data)
+      data[:last_invoice]
+    end
+
+    def self.data_for_client(data, client)
+      all_clients(data).select{|x| x[:key] == RbInvoice::to_client_key(client)}.first
+    end
+
+    def self.key_for_client(data, client, key)
+      d = data_for_client(data, client)
+      d = d ? d[key] : nil
+    end
+
+    def self.invoices_for_client(data, client)
+      key_for_client(data, client, :invoices) || []
+    end
+
+    def self.last_invoice_for_client(data, client)
+      invoices_for_client(data, client).sort_by{|x| x[:end_date]}.last
+    end
+
+    def self.frequency_for_client(data, client)
+      key_for_client(data, client, :frequency)
+    end
+
     def self.parse_command_line(argv)
       opts = Trollop::options(argv) do
         version "rbinvoice 0.1.0 (c) 2012 Paul A. Jungwirth"
@@ -111,6 +143,11 @@ module RbInvoice
       read_rc_file(opts) unless opts[:no_rcfile]
       opts[:data] = opts[:no_data_file] ? {} : read_data_file(opts)
 
+      if not opts[:invoice_number] and not last_invoice_number(opts[:data])
+        Trollop::die "Can't determine invoice number"
+      end
+      opts[:invoice_number] ||= last_invoice_number(opts[:data]) + 1
+
       Trollop::die "can't determine hourly spreadsheet" unless opts[:spreadsheet]
 
       opts[:out_filename] = argv.shift
@@ -120,10 +157,23 @@ module RbInvoice
       end
       Trollop::die "can't infer output filename; please provide one" unless opts[:out_filename]
 
-      opts[:start_date] = '2012-07-15'
-      opts[:end_date]   = '2012-07-31'
-      opts[:start_date] = Date.strptime(opts[:start_date], "%Y-%m-%d")
-      opts[:end_date]   = Date.strptime(opts[:end_date], "%Y-%m-%d")
+      # opts[:start_date] = '2012-07-15'
+      # opts[:end_date]   = '2012-07-31'
+      opts[:start_date] = Date.strptime(opts[:start_date], "%Y-%m-%d")  if opts[:start_date]
+      opts[:end_date]   = Date.strptime(opts[:end_date], "%Y-%m-%d")    if opts[:end_date]
+
+      # Read the list of past invoices.
+      # If there are none, assume there is only one invoice to do.
+
+      jobs = []
+
+      last_invoice = last_invoice_for_client(opts[:data], opts[:client])
+      if opts[:end_date]
+      else
+        # Do all pending invoices.
+      end
+
+      # return jobs
 
       return [[opts[:client], opts[:start_date], opts[:end_date], opts[:out_filename], opts]]
     end
