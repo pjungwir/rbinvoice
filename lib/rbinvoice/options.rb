@@ -71,8 +71,8 @@ module RbInvoice
 
     # Looks in ~/.rbinvoice 
     def self.default_out_filename(opts)
-      if opts[:client] and opts[:data][:last_invoice]
-        "invoice-#{opts[:data][:last_invoice].to_i + 1}-#{opts[:client]}.pdf"
+      if opts[:client] and opts[:invoice_number]
+        "invoice-#{opts[:invoice_number]}-#{opts[:client]}.pdf"
       else
         nil
       end
@@ -168,7 +168,10 @@ module RbInvoice
       jobs = []
 
       last_invoice = last_invoice_for_client(opts[:data], opts[:client])
-      if opts[:end_date]
+      if opts[:end_date] and opts[:start_date]
+        # just do it, regardless of frequency.
+      elsif opts[:end_date]
+      elsif opts[:start_date]
       else
         # Do all pending invoices.
       end

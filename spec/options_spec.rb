@@ -28,7 +28,7 @@ describe RbInvoice::Options do
 
   it "should require an output filename if it can't infer one" do
     lambda {
-      RbInvoice::Options::parse_command_line(%w{--spreadsheet=foo --invoice-number=5 my-client})
+      RbInvoice::Options::parse_command_line(%w{--spreadsheet=foo my-client})
     }.should raise_error SystemExit
   end
 
