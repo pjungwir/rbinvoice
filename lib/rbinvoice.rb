@@ -60,7 +60,7 @@ module RbInvoice
   def self.make_pdf(tasks, start_date, end_date, filename, opts)
     write_latex(tasks, end_date, filename, opts)
     `cd "#{File.dirname(filename)}" && pdflatex "#{File.basename(filename, '.pdf')}"`
-    # TODO: Write data file
+    RbInvoice::Options::add_invoice_to_data(tasks, start_date, end_date, filename, opts) unless opts[:no_data_file]
   end
 
   def self.escape_for_latex(str)

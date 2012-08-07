@@ -137,6 +137,28 @@ module RbInvoice
       end
     end
 
+    def self.add_new_client_data(client, data)
+      h = {
+        'name' => client,
+        'key' => client,
+        'invoices' => []
+      }
+      (data[:clients] ||= []) << h
+      return h
+    end
+
+    def self.add_invoice_to_data(tasks, start_date, end_date, filename, opts)
+      data = opts[:data]
+      client = data_for_client(data, opts[:client]) || add_new_client_data(opts[:client], data)
+      (client[:invoices] ||= []) << {
+        'id' => opts[:invoice_number],
+        'start_date' => start_date.strftime("%Y-%m-%d"),
+        'end_date' => end_date.strftime("%Y-%m-%d"),
+        'filename' => filename
+      }
+      write_data_file(opts)
+    end
+
     def self.all_clients(data)
       data[:clients] || []
     end
