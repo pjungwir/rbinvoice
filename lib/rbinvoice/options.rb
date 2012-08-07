@@ -63,20 +63,22 @@ module RbInvoice
 
     def self.parse_rc_file(text, opts)
       rc = (text ? RbInvoice::Util::read_with_yaml(text) : {})
-      %w{spreadsheet spreadsheet_user spreadsheet_password}.each do |key|
+      %w{spreadsheet spreadsheet_user spreadsheet_password out_directory}.each do |key|
         key = key.to_sym
         opts[key] ||= rc[key]
       end
       return opts
     end
 
-    def self.default_out_dir(opts)
+    # TODO: Allow per-client settings to override the global setting
+    def self.default_out_directory(opts)
+      opts[:out_directory] || '.'
     end
 
     # Looks in ~/.rbinvoice 
     def self.default_out_filename(opts)
       if opts[:client] and opts[:invoice_number]
-        "invoice-#{opts[:invoice_number]}-#{opts[:client]}.pdf"
+        File.join(default_out_directory(opts), "invoice-#{opts[:invoice_number]}-#{opts[:client]}.pdf")
       else
         nil
       end
