@@ -76,8 +76,8 @@ describe RbInvoice::Options do
   end
 
   it "should have good defaults" do
-    ret = RbInvoice::Options::parse_command_line(%w{--spreadsheet=foo --invoice-number=5 my-client outfile})[0]
-    (client, start_date, end_date, out_filename, opts) = RbInvoice::Options::parse_command_line(%w{--spreadsheet=foo --invoice-number=5 my-client outfile})[0]
+    ret = RbInvoice::Options::parse_command_line(%w{--spreadsheet=foo --invoice-number=5 my-client outfile})
+    (client, start_date, end_date, out_filename, opts) = RbInvoice::Options::parse_command_line(%w{--spreadsheet=foo --invoice-number=5 my-client outfile})
     client.should == 'my-client'
     out_filename.should == 'outfile'
 
@@ -107,32 +107,32 @@ describe RbInvoice::Options do
   end
 
   it "should use the given invoice number" do
-    client, start_date, end_date, out_filename, opts = *RbInvoice::Options::parse_command_line(%w{--spreadsheet=foo --invoice-number=1041 my-client outfile})[0]
+    client, start_date, end_date, out_filename, opts = *RbInvoice::Options::parse_command_line(%w{--spreadsheet=foo --invoice-number=1041 my-client outfile})
     opts[:invoice_number].should == 1041
   end
 
   it "should use the next invoice number" do
     File.open("#{@tmpdir}/.rbinvoice", 'w') { |f| f.write("last_invoice: 1040") }
-    client, start_date, end_date, out_filename, opts = *RbInvoice::Options::parse_command_line(%w{--spreadsheet=foo my-client outfile})[0]
+    client, start_date, end_date, out_filename, opts = *RbInvoice::Options::parse_command_line(%w{--spreadsheet=foo my-client outfile})
     opts[:invoice_number].should == 1041
   end
 
   it "should infer output filename from invoice number and client" do
-    client, start_date, end_date, out_filename, opts = *RbInvoice::Options::parse_command_line(%w{--spreadsheet=foo --invoice-number=1041 my-client})[0]
+    client, start_date, end_date, out_filename, opts = *RbInvoice::Options::parse_command_line(%w{--spreadsheet=foo --invoice-number=1041 my-client})
     opts[:out_filename].should == 'invoice-1041-my-client.pdf'
   end
 
   it "should use the spreadsheet URL from --spreadsheet" do
-    client, start_date, end_date, out_filename, opts = *RbInvoice::Options::parse_command_line(%w{--spreadsheet=foo --invoice-number=5 my-client outfile})[0]
+    client, start_date, end_date, out_filename, opts = *RbInvoice::Options::parse_command_line(%w{--spreadsheet=foo --invoice-number=5 my-client outfile})
     opts[:spreadsheet].should == 'foo'
 
-    client, start_date, end_date, out_filename, opts = *RbInvoice::Options::parse_command_line(%w{-s foo --invoice-number=5 my-client outfile})[0]
+    client, start_date, end_date, out_filename, opts = *RbInvoice::Options::parse_command_line(%w{-s foo --invoice-number=5 my-client outfile})
     opts[:spreadsheet].should == 'foo'
   end
 
   it "should use the spreadsheet URL from .rbinvoicerc" do
     File.open("#{@tmpdir}/.rbinvoicerc", 'w') { |f| f.write("spreadsheet: http://foo") }
-    client, start_date, end_date, out_filename, opts = *RbInvoice::Options::parse_command_line(%w{--invoice-number=1040 my-client outfile})[0]
+    client, start_date, end_date, out_filename, opts = *RbInvoice::Options::parse_command_line(%w{--invoice-number=1040 my-client outfile})
     opts[:spreadsheet].should == 'http://foo'
   end
 

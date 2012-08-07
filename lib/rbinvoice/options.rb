@@ -223,12 +223,12 @@ module RbInvoice
           Trollop::die "can't determine invoice range without frequency"
         end
       else
-        # Do all pending invoices.
+        # Do all pending invoices (leave start_date and end_date nil).
       end
 
       # return jobs
 
-      return [[opts[:client], opts[:start_date], opts[:end_date], opts[:out_filename], opts]]
+      return opts[:client], opts[:start_date], opts[:end_date], opts[:out_filename], opts
     end
 
   end

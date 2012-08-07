@@ -22,21 +22,31 @@ module RbInvoice
   #   - Default dir for the tex & pdf files.
 
   def self.parse_date(str)
+    return str if str.class == Date
     Date.strptime(str, "%m/%d/%Y")
   end
 
-  def self.write_invoices(arr)
-    arr.each do |job|
-      write_invoice(*job)
-    end
+  def self.earliest_task_date(hours)
+    row = hours.sort_by { |row| parse_date(row[0]) }.first
+    row ? row[0] : nil
   end
 
-  def self.write_invoice(client, start_date, end_date, filename, opts)
+  def self.write_invoices(client, start_date, end_date, filename, opts)
     if start_date and end_date
       tasks = hourly_breakdown(client, start_date, end_date, opts)
       make_pdf(tasks, start_date, end_date, filename, opts)
     else
-      # TODO: Write all the outstanding spreadsheets
+      # Write all the outstanding spreadsheets
+      freq = RbInvoice::Options::frequeny_for_client(opts[:data], client)
+      last_invoice = RbInvoice::Options::last_invoice_for_client(opts[:data], client)
+      hours = read_all_hours(client, opts)
+      earliest_date = if last_invoice
+                     Date.strptime(last_invoice[:end_date], '%Y-%m-%d') + 1
+                   else
+                     parse_date(earliest_task_date)
+                   end
+      # TODO: Needs work:
+      start_date, end_date = find_invoice_bounds(earliest_date, nil, freq)
     end
   end
 
