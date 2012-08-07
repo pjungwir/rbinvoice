@@ -103,20 +103,34 @@ module RbInvoice
       end
     end
 
-    def self.find_invoice_bounds(sd, ed, freq)
+    def self.week_start(d)
+      # Assumes the week starts on a Sunday:
+      d - d.wday
+    end
+
+    def self.week_end(d)
+      week_start(d) + 7
+    end
+
+    # second_half_of_biweek - indicates that `d` is from the second half of the biweek.
+    # If false (the default), we assume `d` is from the first half.
+    def self.find_invoice_bounds(d, freq, second_half_of_biweek=false)
       case freq.to_sym
       when :weekly
-        if sd then ed = sd + 7 else sd = ed - 7 end
+        return week_start(d), week_end(d)
       when :biweekly
-        if sd then ed = sd + 14 else sd = ed - 14 end
+        if second_half_of_biweek
+          return week_start(d) - 7, week_end(d)
+        else
+          return week_start(d), week_end(d) + 7
+        end
       when :semimonthly
-        if sd then ed = semimonth_end(sd) else sd = semimonth_start(ed) end
+        return semimonth_start(d), semimonth_end(d)
       when :monthly
-        if sd then ed = last_day_of_the_month(sd) else sd = first_day_of_the_month(ed) end
+        return first_day_of_the_month(d), last_day_of_the_month(d)
       else
         raise "Unknown frequency: #{freq}"
       end
-      return sd, ed
     end
 
     def self.all_clients(data)
@@ -218,7 +232,7 @@ module RbInvoice
       elsif opts[:end_date] or opts[:start_date]
         freq = frequency_for_client(opts[:data], opts[:client])
         if freq
-          opts[:start_date], opts[:end_date] = find_invoice_bounds(opts[:start_date], opts[:end_date], freq)
+          opts[:start_date], opts[:end_date] = find_invoice_bounds(opts[:start_date] || opts[:end_date], freq, !!opts[:end_date])
         else
           Trollop::die "can't determine invoice range without frequency"
         end

@@ -46,7 +46,7 @@ module RbInvoice
                      parse_date(earliest_task_date)
                    end
       # TODO: Needs work:
-      start_date, end_date = find_invoice_bounds(earliest_date, nil, freq)
+      start_date, end_date = find_invoice_bounds(earliest_date, freq)
     end
   end
 
