@@ -33,24 +33,27 @@ module RbInvoice
 
   def self.write_invoices(client, start_date, end_date, filename, opts)
     if start_date and end_date
+      puts filename
       tasks = hourly_breakdown(client, start_date, end_date, opts)
       make_pdf(tasks, start_date, end_date, filename, opts)
     else
       # Write all the outstanding spreadsheets
-      freq = RbInvoice::Options::frequeny_for_client(opts[:data], client)
+      freq = RbInvoice::Options::frequency_for_client(opts[:data], client)
       last_invoice = RbInvoice::Options::last_invoice_for_client(opts[:data], client)
       hours = read_all_hours(client, opts)
       earliest_date = if last_invoice
-                     Date.strptime(last_invoice[:end_date], '%Y-%m-%d') + 1
+                     last_invoice[:end_date] + 1
                    else
                      parse_date(earliest_task_date)
                    end
-      start_date, end_date = find_invoice_bounds(earliest_date, freq)
+      start_date, end_date = RbInvoice::Options::find_invoice_bounds(earliest_date, freq)
       tasks = hourly_breakdown(client, start_date, end_date, opts)
+      puts tasks
       while tasks.size > 0
         filename = RbInvoice::Options::default_out_filename(opts)
+        puts filename
         make_pdf(tasks, start_date, end_date, filename, opts)
-        start_date, end_date = find_invoice_bounds(end_date + 1, freq)
+        start_date, end_date = RbInvoice::Options::find_invoice_bounds(end_date + 1, freq)
         tasks = hourly_breakdown(client, start_date, end_date, opts)
         opts[:invoice_number] += 1
       end
@@ -64,12 +67,14 @@ module RbInvoice
   end
 
   def self.escape_for_latex(str)
-    str.gsub('&', '\\\\&')   # tricky b/c '\&' has special meaning to gsub.
+    str.gsub('&', '\\\\&').   # tricky b/c '\&' has special meaning to gsub.
+      gsub('"', '\"').
+      gsub('$', '\$')
   end
 
   def self.write_latex(tasks, invoice_date, filename, opts)
     template = File.open(opts[:template]) { |f| f.read }
-    rate = opts[:data][:rate]    # TODO: Support per-task rates
+    rate = opts[:rate]    # TODO: Support per-task rates
     items = tasks.map{|task, details|
       task_total_hours = details.inject(0) {|t, row| t + row[2]}
       {
@@ -102,6 +107,7 @@ module RbInvoice
 
   def self.open_worksheet(spreadsheet, username, password)
     g = Google.new(spreadsheet, username, password)
+    g.date_format = '%m/%d/%Y'
     g.default_sheet = g.sheets.first
     return g
   end
@@ -138,6 +144,7 @@ module RbInvoice
   end
 
   def self.select_date_range(start_date, end_date, hours)
+    puts "#{start_date} to #{end_date}: #{hours}"
     hours.select do |row|
       # puts "#{row[0].class}: #{row.join("\t")}"
       # Sometimes we get a String, sometimes a Date,

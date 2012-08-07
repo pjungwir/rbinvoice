@@ -1,3 +1,4 @@
+require 'yaml'
 require 'trollop'
 require 'rbinvoice/util'
 
@@ -32,11 +33,8 @@ module RbInvoice
     def self.read_data_file(opts)
       if File.exist?(opts[:data_file])
         ret = parse_data_file(File.read(opts[:data_file]), opts)
-        client = all_clients(ret).select{|x| x[:key] == opts[:client]}.first
-        if client
-          client = client.select{|x| x[:key] == opts[:client]}.first
-          ret[:rate] = client[:rate] if client
-        end
+        client = data_for_client(ret, opts[:client])
+        opts[:rate] = client[:rate] if client
         return ret
       else
         return {}
@@ -158,6 +156,9 @@ module RbInvoice
         'end_date' => end_date.strftime("%Y-%m-%d"),
         'filename' => filename
       }
+      if not data[:last_invoice] or opts[:invoice_number] > data[:last_invoice]
+        data[:last_invoice] = opts[:invoice_number]
+      end
       write_data_file(opts)
     end
 
@@ -199,29 +200,19 @@ module RbInvoice
         version "rbinvoice 0.1.0 (c) 2012 Paul A. Jungwirth"
         banner <<-EOH
           USAGE: rbinvoice [options] <client> [filename]
-            Options:
-              -h, --help                               Print this message.
-              --rcfile=<filename>                      Use an rc file other than ~/.rbinvoicerc.
-              --no-rcfile                              Don't read an rc file.
-              --data-file=<dirname>                    Use a data file other than ~/.rbinvoice.
-              --no-data-file                           Don't read or write to a data file.
-              --invoice-number=<n>                     Use a specific invoice number.
-              --no-write-invoice-number                Don't record the invoice number.
-              --spreadsheet=<url>                      Pull data from <url>.
-              --template=<filename>                    Use the given liquid template.
         EOH
         opt :help, "Show a help message"
 
         opt :rcfile, "Use an rc file other than ~/.rbinvoicerc", :short => '-r'
         opt :no_rcfile, "Don't read an rc file", :default => false, :short => '-R'
 
-        opt :data_file, "Use a data dir other than ~/.rbinvoice", :default => RbInvoice::Options.default_data_file, :short => '-d'
+        opt :data_file, "Use a data file other than ~/.rbinvoice", :default => RbInvoice::Options.default_data_file, :short => '-d'
         opt :no_data_file, "Don't read or write to a data file", :default => false, :short => '-D'
 
         opt :invoice_number, "Use a specific invoice number", :type => :int, :short => '-n'
         opt :no_write_invoice_number, "Record the invoice number", :default => false, :short => '-N'
 
-        opt :spreadsheet, "Read the given spreadsheet URL", :type => :string, :short => '-s'
+        opt :spreadsheet, "Read the given spreadsheet URL", :type => :string, :short => '-u'
         opt :start_date, "Date to begin the invoice (yyyy-mm-dd)", :type => :string
         opt :end_date, "Date to end the invoice (yyyy-mm-dd)", :type => :string
 

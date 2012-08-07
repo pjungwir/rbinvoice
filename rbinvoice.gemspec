@@ -9,10 +9,10 @@ Gem::Specification.new do |s|
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Paul A. Jungwirth"]
-  s.date = "2012-08-02"
+  s.date = "2012-08-07"
   s.description = "      Reads hours from a Google Spreadsheet and generates a PDF invoice.\n"
   s.email = "pj@illuminatedcomputing.com"
-  s.executables = ["rbinvoice"]
+  s.executables = ["rbinvoice", "rbinvoice"]
   s.extra_rdoc_files = [
     "LICENSE.txt",
     "README.md",
@@ -25,9 +25,13 @@ Gem::Specification.new do |s|
     "README.md",
     "Rakefile",
     "VERSION",
+    "bin/rbinvoice",
     "lib/rbinvoice.rb",
+    "lib/rbinvoice/options.rb",
+    "lib/rbinvoice/util.rb",
     "rbinvoice.gemspec",
-    "spec/options_spec.rb"
+    "spec/options_spec.rb",
+    "templates/invoice.tex.liquid"
   ]
   s.homepage = "http://github.com/pjungwir/rbinvoice"
   s.licenses = ["MIT"]
@@ -42,6 +46,7 @@ Gem::Specification.new do |s|
       s.add_runtime_dependency(%q<trollop>, [">= 0"])
       s.add_runtime_dependency(%q<roo>, [">= 0"])
       s.add_runtime_dependency(%q<prawn>, [">= 0"])
+      s.add_runtime_dependency(%q<liquid>, [">= 0"])
       s.add_development_dependency(%q<rspec>, [">= 0"])
       s.add_development_dependency(%q<bundler>, [">= 0"])
       s.add_development_dependency(%q<jeweler>, [">= 0"])
@@ -50,6 +55,7 @@ Gem::Specification.new do |s|
       s.add_dependency(%q<trollop>, [">= 0"])
       s.add_dependency(%q<roo>, [">= 0"])
       s.add_dependency(%q<prawn>, [">= 0"])
+      s.add_dependency(%q<liquid>, [">= 0"])
       s.add_dependency(%q<rspec>, [">= 0"])
       s.add_dependency(%q<bundler>, [">= 0"])
       s.add_dependency(%q<jeweler>, [">= 0"])
@@ -59,6 +65,7 @@ Gem::Specification.new do |s|
     s.add_dependency(%q<trollop>, [">= 0"])
     s.add_dependency(%q<roo>, [">= 0"])
     s.add_dependency(%q<prawn>, [">= 0"])
+    s.add_dependency(%q<liquid>, [">= 0"])
     s.add_dependency(%q<rspec>, [">= 0"])
     s.add_dependency(%q<bundler>, [">= 0"])
     s.add_dependency(%q<jeweler>, [">= 0"])

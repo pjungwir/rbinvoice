@@ -1,0 +1,12 @@
+To create a new gem:
+  - `rake version` to bump the version number. Also:
+    - `rake version:bump:major`
+    - `rake version:bump:minor`
+    - `rake version:bump:patch`
+  - `rake gemspec` to use jeweler to autogenerate the gemspec based on the Rakefile.
+  - `gem build rbinvoice.gemspec` to build a rbinvoice-$version.gem file.
+  - `gem install ./rbinvoice-$version.gem` to install it locally for testing.
+    - OR `rake install` to build and install.
+  - `gem push rbinvoice-$version.gem` to push it to RubyGems.org.
+    - OR `rake release` to release the gem.
+
