@@ -78,6 +78,32 @@ module RbInvoice
       end
     end
 
+    def self.first_day_of_the_month(d)
+      Date.new(d.year, d.month, 1)
+    end
+
+    def self.last_day_of_the_month(d)
+      n = d.next_month
+      Date.new(d.year, d.month, (Date.new(n.year, n.month, 1) - 1).day)
+    end
+
+    def self.find_invoice_bounds(opts, freq)
+      sd = opts[:start_date]
+      ed = opts[:end_date]
+      case freq.to_sym
+      when :weekly
+        if sd then ed = sd + 7 else sd = ed - 7 end
+      when :biweekly
+        if sd then ed = sd + 14 else sd = ed - 14 end
+      when :semimonthly
+      when :monthly
+        if sd then ed = last_day_of_month(sd) else sd = first_day_of_month(ed) end
+      else
+        raise "Unknown frequency: #{freq}"
+      end
+      return sd, ed
+    end
+
     def self.all_clients(data)
       data[:clients] || []
     end
@@ -93,6 +119,10 @@ module RbInvoice
     def self.key_for_client(data, client, key)
       d = data_for_client(data, client)
       d = d ? d[key] : nil
+    end
+
+    def self.frequncy_for_client(data, client)
+      key_for_client(data, client, :frequency)
     end
 
     def self.invoices_for_client(data, client)
@@ -170,8 +200,13 @@ module RbInvoice
       last_invoice = last_invoice_for_client(opts[:data], opts[:client])
       if opts[:end_date] and opts[:start_date]
         # just do it, regardless of frequency.
-      elsif opts[:end_date]
-      elsif opts[:start_date]
+      elsif opts[:end_date] or opts[:start_date]
+        freq = frequency_for_client(opts[:data], opts[:client])
+        if freq
+          opts[:start_date], opts[:end_date] = find_invoice_bounds(opts, freq)
+        else
+          Trollop::die "can't determine invoice range without frequency"
+        end
       else
         # Do all pending invoices.
       end

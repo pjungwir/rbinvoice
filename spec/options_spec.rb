@@ -13,6 +13,29 @@ describe RbInvoice::Options do
     FileUtils.rm_rf @tmpdir
   end
 
+  it "should compute the first day of the month" do
+    RbInvoice::Options::first_day_of_the_month(Date.new(2011, 3, 5)).should == Date.new(2011, 3,1)
+    RbInvoice::Options::first_day_of_the_month(Date.new(2011, 3,31)).should == Date.new(2011, 3,1)
+    RbInvoice::Options::first_day_of_the_month(Date.new(2011, 3, 1)).should == Date.new(2011, 3,1)
+    RbInvoice::Options::first_day_of_the_month(Date.new(2011, 2,28)).should == Date.new(2011, 2,1)
+    RbInvoice::Options::first_day_of_the_month(Date.new(2012, 2,29)).should == Date.new(2012, 2,1)
+    RbInvoice::Options::first_day_of_the_month(Date.new(2012, 1, 5)).should == Date.new(2012, 1,1)
+    RbInvoice::Options::first_day_of_the_month(Date.new(2011,12, 5)).should == Date.new(2011,12,1)
+  end
+
+  it "should compute the last day of the month" do
+    RbInvoice::Options::last_day_of_the_month(Date.new(2011, 3, 5)).should == Date.new(2011, 3,31)
+    RbInvoice::Options::last_day_of_the_month(Date.new(2011, 3,31)).should == Date.new(2011, 3,31)
+    RbInvoice::Options::last_day_of_the_month(Date.new(2011, 3, 1)).should == Date.new(2011, 3,31)
+    RbInvoice::Options::last_day_of_the_month(Date.new(2011, 4, 8)).should == Date.new(2011, 4,30)
+    RbInvoice::Options::last_day_of_the_month(Date.new(2011, 2,28)).should == Date.new(2011, 2,28)
+    RbInvoice::Options::last_day_of_the_month(Date.new(2012, 2,29)).should == Date.new(2012, 2,29)
+    RbInvoice::Options::last_day_of_the_month(Date.new(2011, 2,19)).should == Date.new(2011, 2,28)
+    RbInvoice::Options::last_day_of_the_month(Date.new(2012, 2,19)).should == Date.new(2012, 2,29)
+    RbInvoice::Options::last_day_of_the_month(Date.new(2012, 1, 5)).should == Date.new(2012, 1,31)
+    RbInvoice::Options::last_day_of_the_month(Date.new(2011,12, 5)).should == Date.new(2011,12,31)
+  end
+
   it "should have good defaults" do
     ret = RbInvoice::Options::parse_command_line(%w{--spreadsheet=foo --invoice-number=5 my-client outfile})[0]
     (client, start_date, end_date, out_filename, opts) = RbInvoice::Options::parse_command_line(%w{--spreadsheet=foo --invoice-number=5 my-client outfile})[0]
