@@ -20,6 +20,10 @@ module RbInvoice
       File.join(ENV['HOME'] || '.', '.rbinvoice')
     end
 
+    def self.default_template_filename
+      File.join(File.dirname(__FILE__), '..', '..', 'templates', 'invoice.tex.liquid')
+    end
+
     def self.write_data_file(opts)
       # Add the new invoice to the list of client invoices.
       File.open(opts[:data_file], 'w') { |f| f.puts YAML::dump(opts[:data]) }
@@ -180,6 +184,7 @@ module RbInvoice
               --invoice-number=<n>                     Use a specific invoice number.
               --no-write-invoice-number                Don't record the invoice number.
               --spreadsheet=<url>                      Pull data from <url>.
+              --template=<filename>                    Use the given liquid template.
         EOH
         opt :help, "Show a help message"
 
@@ -195,6 +200,8 @@ module RbInvoice
         opt :spreadsheet, "Read the given spreadsheet URL", :type => :string, :short => '-s'
         opt :start_date, "Date to begin the invoice (yyyy-mm-dd)", :type => :string
         opt :end_date, "Date to end the invoice (yyyy-mm-dd)", :type => :string
+
+        opt :template, "Use the given liquid template", :type => :string, :default => RbInvoice::Options::default_template_filename
       end
       Trollop::die "client must be given" unless argv.size > 0
       opts[:client] = argv.shift

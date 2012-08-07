@@ -68,7 +68,7 @@ module RbInvoice
   end
 
   def self.write_latex(tasks, invoice_date, filename, opts)
-    template = File.open(File.join(File.dirname(__FILE__), '..', 'templates', 'invoice.tex.liquid')) { |f| f.read }
+    template = File.open(opts[:template]) { |f| f.read }
     rate = opts[:data][:rate]    # TODO: Support per-task rates
     items = tasks.map{|task, details|
       task_total_hours = details.inject(0) {|t, row| t + row[2]}
