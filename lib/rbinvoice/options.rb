@@ -87,17 +87,32 @@ module RbInvoice
       Date.new(d.year, d.month, (Date.new(n.year, n.month, 1) - 1).day)
     end
 
-    def self.find_invoice_bounds(opts, freq)
-      sd = opts[:start_date]
-      ed = opts[:end_date]
+    def self.semimonth_end(d)
+      if d.day <= 15
+        Date.new(d.year, d.month, 15)
+      else
+        Date.new(d.year, d.month, last_day_of_the_month(d).day)
+      end
+    end
+
+    def self.semimonth_start(d)
+      if d.day <= 15
+        first_day_of_the_month(d)
+      else
+        Date.new(d.year, d.month, 15)
+      end
+    end
+
+    def self.find_invoice_bounds(sd, ed, freq)
       case freq.to_sym
       when :weekly
         if sd then ed = sd + 7 else sd = ed - 7 end
       when :biweekly
         if sd then ed = sd + 14 else sd = ed - 14 end
       when :semimonthly
+        if sd then ed = semimonth_end(sd) else sd = semimonth_start(ed) end
       when :monthly
-        if sd then ed = last_day_of_month(sd) else sd = first_day_of_month(ed) end
+        if sd then ed = last_day_of_the_month(sd) else sd = first_day_of_the_month(ed) end
       else
         raise "Unknown frequency: #{freq}"
       end
@@ -203,7 +218,7 @@ module RbInvoice
       elsif opts[:end_date] or opts[:start_date]
         freq = frequency_for_client(opts[:data], opts[:client])
         if freq
-          opts[:start_date], opts[:end_date] = find_invoice_bounds(opts, freq)
+          opts[:start_date], opts[:end_date] = find_invoice_bounds(opts[:start_date], opts[:end_date], freq)
         else
           Trollop::die "can't determine invoice range without frequency"
         end
