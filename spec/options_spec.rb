@@ -119,14 +119,14 @@ describe RbInvoice::Options do
 
   it "should infer output filename from invoice number and client" do
     client, start_date, end_date, out_filename, opts = *RbInvoice::Options::parse_command_line(%w{--spreadsheet=foo --invoice-number=1041 my-client})
-    opts[:out_filename].should == 'invoice-1041-my-client.pdf'
+    opts[:out_filename].should == './invoice-1041-my-client.pdf'
   end
 
   it "should use the spreadsheet URL from --spreadsheet" do
     client, start_date, end_date, out_filename, opts = *RbInvoice::Options::parse_command_line(%w{--spreadsheet=foo --invoice-number=5 my-client outfile})
     opts[:spreadsheet].should == 'foo'
 
-    client, start_date, end_date, out_filename, opts = *RbInvoice::Options::parse_command_line(%w{-s foo --invoice-number=5 my-client outfile})
+    client, start_date, end_date, out_filename, opts = *RbInvoice::Options::parse_command_line(%w{-u foo --invoice-number=5 my-client outfile})
     opts[:spreadsheet].should == 'foo'
   end
 

@@ -33,7 +33,6 @@ module RbInvoice
 
   def self.write_invoices(client, start_date, end_date, filename, opts)
     if start_date and end_date
-      puts filename
       tasks = hourly_breakdown(client, start_date, end_date, opts)
       make_pdf(tasks, start_date, end_date, filename, opts)
     else
@@ -48,10 +47,8 @@ module RbInvoice
                    end
       start_date, end_date = RbInvoice::Options::find_invoice_bounds(earliest_date, freq)
       tasks = hourly_breakdown(client, start_date, end_date, opts)
-      puts tasks
       while tasks.size > 0
         filename = RbInvoice::Options::default_out_filename(opts)
-        puts filename
         make_pdf(tasks, start_date, end_date, filename, opts)
         start_date, end_date = RbInvoice::Options::find_invoice_bounds(end_date + 1, freq)
         tasks = hourly_breakdown(client, start_date, end_date, opts)
@@ -97,7 +94,6 @@ module RbInvoice
       }.map{|k, v| [k.to_s, v]}
     ]
     latex = Liquid::Template.parse(template).render args
-    puts filename
     File.open("#{filename.gsub(/\.pdf$/, '')}.tex", 'w') { |f| f.write(latex) }
   end
 
@@ -144,7 +140,6 @@ module RbInvoice
   end
 
   def self.select_date_range(start_date, end_date, hours)
-    puts "#{start_date} to #{end_date}: #{hours}"
     hours.select do |row|
       # puts "#{row[0].class}: #{row.join("\t")}"
       # Sometimes we get a String, sometimes a Date,
