@@ -45,14 +45,22 @@ module RbInvoice
                    else
                      parse_date(earliest_task_date)
                    end
-      # TODO: Needs work:
       start_date, end_date = find_invoice_bounds(earliest_date, freq)
+      tasks = hourly_breakdown(client, start_date, end_date, opts)
+      while tasks.size > 0
+        filename = RbInvoice::Options::default_out_filename(opts)
+        make_pdf(tasks, start_date, end_date, filename, opts)
+        start_date, end_date = find_invoice_bounds(end_date + 1, freq)
+        tasks = hourly_breakdown(client, start_date, end_date, opts)
+        opts[:invoice_number] += 1
+      end
     end
   end
 
   def self.make_pdf(tasks, start_date, end_date, filename, opts)
     write_latex(tasks, end_date, filename, opts)
     `cd "#{File.dirname(filename)}" && pdflatex "#{File.basename(filename, '.pdf')}"`
+    # TODO: Write data file
   end
 
   def self.escape_for_latex(str)
