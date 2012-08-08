@@ -1,0 +1,10 @@
+- Write the README
+  - overview
+  - options
+  - spreadsheet format
+  - .rbinvoice
+  - .rbinvoicerc
+  - LaTeX+liquid template
+- more tests
+- print the pdflatex results to std{out,err} only if the user gives a --verbose flag.
+
