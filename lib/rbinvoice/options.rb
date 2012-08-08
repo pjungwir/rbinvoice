@@ -152,8 +152,8 @@ module RbInvoice
       client = data_for_client(data, opts[:client]) || add_new_client_data(opts[:client], data)
       (client[:invoices] ||= []) << {
         'id' => opts[:invoice_number],
-        'start_date' => start_date.strftime("%Y-%m-%d"),
-        'end_date' => end_date.strftime("%Y-%m-%d"),
+        'start_date' => start_date,
+        'end_date' => end_date,
         'filename' => filename
       }
       if not data[:last_invoice] or opts[:invoice_number] > data[:last_invoice]
