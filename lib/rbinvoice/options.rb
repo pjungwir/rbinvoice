@@ -27,7 +27,7 @@ module RbInvoice
 
     def self.write_data_file(opts)
       # Add the new invoice to the list of client invoices.
-      File.open(opts[:data_file], 'w') { |f| f.puts YAML::dump(opts[:data]) }
+      File.open(opts[:data_file], 'w') { |f| f.puts YAML::dump(RbInvoice::Util::stringify_hash(opts[:data])) }
     end
 
     def self.read_data_file(opts)
