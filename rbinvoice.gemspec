@@ -25,6 +25,7 @@ Gem::Specification.new do |s|
     "NOTES",
     "README.md",
     "Rakefile",
+    "TODO",
     "VERSION",
     "bin/rbinvoice",
     "lib/rbinvoice.rb",
