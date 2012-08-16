@@ -103,7 +103,7 @@ module RbInvoice
       if d.day <= 15
         first_day_of_the_month(d)
       else
-        Date.new(d.year, d.month, 15)
+        Date.new(d.year, d.month, 16)
       end
     end
 
