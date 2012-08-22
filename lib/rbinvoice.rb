@@ -125,6 +125,7 @@ module RbInvoice
     return 3.upto(ss.last_row).select { |row|
       to_client_key(ss.cell(row, COL_CLIENT) || '') == client
     }.map { |row|
+      raise "Invalid task times: #{ss.cell(row, COL_START_TIME)}-#{ss.cell(row, COL_END_TIME)}" if ss.cell(row, COL_START_TIME) && ss.cell(row, COL_END_TIME) && ss.cell(row, COL_TOTAL_TIME) == '0:00:00'
       [ss.cell(row, COL_DATE), ss.cell(row, COL_TASK), interval_to_decimal(ss.cell(row, COL_TOTAL_TIME))]
     }
   end
