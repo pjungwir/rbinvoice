@@ -65,8 +65,9 @@ module RbInvoice
 
   def self.escape_for_latex(str)
     str.gsub('&', '\\\\&').   # tricky b/c '\&' has special meaning to gsub.
-      gsub('"', '\"').
-      gsub('$', '\$')
+      gsub('"', '\texttt{"}').
+      gsub('$', '\$').
+      gsub('+', '$+$')
   end
 
   def self.write_latex(tasks, invoice_date, filename, opts)
