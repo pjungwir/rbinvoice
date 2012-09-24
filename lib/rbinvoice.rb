@@ -43,7 +43,7 @@ module RbInvoice
       earliest_date = if last_invoice
                      last_invoice[:end_date] + 1
                    else
-                     parse_date(earliest_task_date)
+                     parse_date(earliest_task_date(hours))
                    end
       start_date, end_date = RbInvoice::Options::find_invoice_bounds(earliest_date, freq)
       tasks = hourly_breakdown(client, start_date, end_date, opts)
@@ -64,7 +64,7 @@ module RbInvoice
   end
 
   def self.escape_for_latex(str)
-    str.gsub('&', '\\\\&').   # tricky b/c '\&' has special meaning to gsub.
+    (str || '').gsub('&', '\\\\&').   # tricky b/c '\&' has special meaning to gsub.
       gsub('"', '\texttt{"}').
       gsub('$', '\$').
       gsub('+', '$+$')
