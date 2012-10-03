@@ -58,3 +58,6 @@ task :run, [] => [] do |t, args|
   RbInvoice::write_invoice(*RbInvoice::Options::parse_command_line(%w{okvenue}))
 end
 
+task :readme => [] do |task|
+  `markdown README.md >README.html`
+end
