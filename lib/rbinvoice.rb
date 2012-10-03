@@ -80,7 +80,8 @@ module RbInvoice
         'duration_decimal' => task_total_hours,
         'duration' => decimal_to_interval(task_total_hours),
         'price_decimal' => task_total_hours * rate,
-        'price' => "%0.02f" % (task_total_hours * rate)
+        'price' => "%0.02f" % (task_total_hours * rate),
+        'dba' => escape_for_latex(opts[:dba])
       }
     }
 

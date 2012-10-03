@@ -195,6 +195,10 @@ module RbInvoice
       key_for_client(data, client, :frequency)
     end
 
+    def self.dba_for_client(data, opts, client)
+      key_for_client(data, client, :dba) || opts[:dba] || 'Illuminated Computing Inc.'
+    end
+
     def self.parse_command_line(argv)
       opts = Trollop::options(argv) do
         version "rbinvoice 0.1.0 (c) 2012 Paul A. Jungwirth"
@@ -243,6 +247,7 @@ module RbInvoice
       opts[:start_date] = Date.strptime(opts[:start_date], "%Y-%m-%d")  if opts[:start_date]
       opts[:end_date]   = Date.strptime(opts[:end_date], "%Y-%m-%d")    if opts[:end_date]
 
+      opts[:dba] = dba_for_client(opts[:data], opts, opts[:client])
       # Read the list of past invoices.
       # If there are none, assume there is only one invoice to do.
 
