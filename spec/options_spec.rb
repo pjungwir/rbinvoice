@@ -56,20 +56,20 @@ describe RbInvoice::Options do
 
   it "should compute the semimonth start date" do
     RbInvoice::Options::semimonth_start(Date.new(2011, 3, 5)).should == Date.new(2011, 3, 1)
-    RbInvoice::Options::semimonth_start(Date.new(2011, 3,21)).should == Date.new(2011, 3,15)
-    RbInvoice::Options::semimonth_start(Date.new(2011, 3,31)).should == Date.new(2011, 3,15)
+    RbInvoice::Options::semimonth_start(Date.new(2011, 3,21)).should == Date.new(2011, 3,16)
+    RbInvoice::Options::semimonth_start(Date.new(2011, 3,31)).should == Date.new(2011, 3,16)
     RbInvoice::Options::semimonth_start(Date.new(2011, 3, 1)).should == Date.new(2011, 3, 1)
     RbInvoice::Options::semimonth_start(Date.new(2011, 4, 8)).should == Date.new(2011, 4, 1)
-    RbInvoice::Options::semimonth_start(Date.new(2011, 2,28)).should == Date.new(2011, 2,15)
-    RbInvoice::Options::semimonth_start(Date.new(2012, 2,28)).should == Date.new(2012, 2,15)
-    RbInvoice::Options::semimonth_start(Date.new(2012, 2,29)).should == Date.new(2012, 2,15)
-    RbInvoice::Options::semimonth_start(Date.new(2011, 2,19)).should == Date.new(2011, 2,15)
-    RbInvoice::Options::semimonth_start(Date.new(2012, 2,19)).should == Date.new(2012, 2,15)
+    RbInvoice::Options::semimonth_start(Date.new(2011, 2,28)).should == Date.new(2011, 2,16)
+    RbInvoice::Options::semimonth_start(Date.new(2012, 2,28)).should == Date.new(2012, 2,16)
+    RbInvoice::Options::semimonth_start(Date.new(2012, 2,29)).should == Date.new(2012, 2,16)
+    RbInvoice::Options::semimonth_start(Date.new(2011, 2,19)).should == Date.new(2011, 2,16)
+    RbInvoice::Options::semimonth_start(Date.new(2012, 2,19)).should == Date.new(2012, 2,16)
     RbInvoice::Options::semimonth_start(Date.new(2012, 1, 5)).should == Date.new(2012, 1, 1)
     RbInvoice::Options::semimonth_start(Date.new(2011,12, 1)).should == Date.new(2011,12, 1)
     RbInvoice::Options::semimonth_start(Date.new(2011,12, 5)).should == Date.new(2011,12, 1)
     RbInvoice::Options::semimonth_start(Date.new(2011,12,15)).should == Date.new(2011,12, 1)
-    RbInvoice::Options::semimonth_start(Date.new(2011,12,25)).should == Date.new(2011,12,15)
+    RbInvoice::Options::semimonth_start(Date.new(2011,12,25)).should == Date.new(2011,12,16)
   end
 
   it "should compute the previous semimonth" do
