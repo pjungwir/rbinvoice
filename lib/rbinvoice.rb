@@ -15,6 +15,8 @@ module RbInvoice
   COL_START_TIME = 'E'
   COL_END_TIME   = 'F'
   COL_TOTAL_TIME = 'G'
+  COL_MONDAY     = 'H'
+  COL_NOTES      = 'I'
 
   # TODO:
   #   - Figure out the next invoice_number.
@@ -59,7 +61,8 @@ module RbInvoice
 
   def self.make_pdf(tasks, start_date, end_date, filename, opts)
     write_latex(tasks, end_date, filename, opts)
-    system("cd \"#{File.dirname(filename)}\" && pdflatex \"#{File.basename(filename, '.pdf')}\"")
+    result = system("cd \"#{File.dirname(filename)}\" && pdflatex \"#{File.basename(filename, '.pdf')}\"")
+    raise "Problem running LaTeX: $?" unless result
     RbInvoice::Options::add_invoice_to_data(tasks, start_date, end_date, filename, opts) unless opts[:no_data_file]
   end
 
@@ -73,6 +76,9 @@ module RbInvoice
   def self.write_latex(tasks, invoice_date, filename, opts)
     template = File.open(opts[:template]) { |f| f.read }
     rate = opts[:rate]    # TODO: Support per-task rates
+    full_name = RbInvoice::Options::full_name_for_client(opts[:data], opts, opts[:client])
+    address = RbInvoice::Options::address_for_client(opts[:data], opts, opts[:client])
+    description = RbInvoice::Options::description_for_client(opts[:data], opts, opts[:client])
     items = tasks.map{|task, details|
       task_total_hours = details.inject(0) {|t, row| t + row[2]}
       {
@@ -80,8 +86,7 @@ module RbInvoice
         'duration_decimal' => task_total_hours,
         'duration' => decimal_to_interval(task_total_hours),
         'price_decimal' => task_total_hours * rate,
-        'price' => "%0.02f" % (task_total_hours * rate),
-        'dba' => escape_for_latex(opts[:dba])
+        'price' => "%0.02f" % (task_total_hours * rate)
       }
     }
 
@@ -93,6 +98,10 @@ module RbInvoice
         line_items: items,
         total_duration: decimal_to_interval(items.inject(0) {|t, item| t + item['duration_decimal']}),
         total_price: "%0.02f" % items.inject(0) {|t, item| t + item['price_decimal']},
+        dba: escape_for_latex(opts[:dba]),
+        client_full_name: escape_for_latex(full_name),
+        client_address: escape_for_latex(address),
+        client_description: escape_for_latex(description),
       }.map{|k, v| [k.to_s, v]}
     ]
     latex = Liquid::Template.parse(template).render args
@@ -128,8 +137,12 @@ module RbInvoice
       to_client_key(ss.cell(row, COL_CLIENT) || '') == client
     }.map { |row|
       raise "Invalid task times: #{ss.cell(row, COL_START_TIME)}-#{ss.cell(row, COL_END_TIME)}" if ss.cell(row, COL_START_TIME) && ss.cell(row, COL_END_TIME) && ss.cell(row, COL_TOTAL_TIME) == '0:00:00'
-      [ss.cell(row, COL_DATE), ss.cell(row, COL_TASK), interval_to_decimal(ss.cell(row, COL_TOTAL_TIME))]
-    }
+      if ss.cell(row, COL_NOTES) == 'FREE'
+        nil
+      else
+        [ss.cell(row, COL_DATE), ss.cell(row, COL_TASK), interval_to_decimal(ss.cell(row, COL_TOTAL_TIME))]
+      end
+    }.compact
   end
 
   def self.interval_to_decimal(time)

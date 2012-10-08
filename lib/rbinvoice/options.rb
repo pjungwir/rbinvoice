@@ -199,6 +199,18 @@ module RbInvoice
       key_for_client(data, client, :dba) || opts[:dba] || 'Illuminated Computing Inc.'
     end
 
+    def self.full_name_for_client(data, opts, client)
+      key_for_client(data, client, :full_name)
+    end
+
+    def self.address_for_client(data, opts, client)
+      key_for_client(data, client, :address)
+    end
+
+    def self.description_for_client(data, opts, client)
+      key_for_client(data, client, :description)
+    end
+
     def self.parse_command_line(argv)
       opts = Trollop::options(argv) do
         version "rbinvoice 0.1.0 (c) 2012 Paul A. Jungwirth"

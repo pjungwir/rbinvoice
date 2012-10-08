@@ -25,13 +25,13 @@ Beaverton, OR 97005 \\
 {% endraw %}
 
 \noindent {\sc to}: \\
-OK Venue LLC \\
-116 W 23rd St. \\
-New York, NY 10011 \\
+{{ client_full_name }} \\
+{% if client_address %}{{ client_address }} \\
+{% endif %}
 \smallskip
 
 \noindent {\sc for}: \\
-Consulting and programming for the okvenue.com website and related projects. \\
+{{ client_description }} \\
 \linebreak[4]
 
 \begin{tabular}{lrr}
@@ -46,7 +46,7 @@ Consulting and programming for the okvenue.com website and related projects. \\
 
 \noindent
 Please make all checks payable to {{ dba }}. \\
-Payment due net 30 days. \\
+Payment due upon receipt. \\
 
 \begin{center}
 \textbf{Thank you for your business!}
