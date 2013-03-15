@@ -70,7 +70,8 @@ module RbInvoice
     (str || '').gsub('&', '\\\\&').   # tricky b/c '\&' has special meaning to gsub.
       gsub('"', '\texttt{"}').
       gsub('$', '\$').
-      gsub('+', '$+$')
+      gsub('+', '$+$').
+      gsub("\n", " \\\\\\\\ \n")
   end
 
   def self.write_latex(tasks, invoice_date, filename, opts)
