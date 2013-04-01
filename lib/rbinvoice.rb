@@ -100,6 +100,7 @@ module RbInvoice
         total_duration: decimal_to_interval(items.inject(0) {|t, item| t + item['duration_decimal']}),
         total_price: "%0.02f" % items.inject(0) {|t, item| t + item['price_decimal']},
         dba: escape_for_latex(opts[:dba]),
+        payment_due: opts[:payment_due],
         client_full_name: escape_for_latex(full_name),
         client_address: escape_for_latex(address),
         client_description: escape_for_latex(description),

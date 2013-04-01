@@ -199,6 +199,10 @@ module RbInvoice
       key_for_client(data, client, :dba) || opts[:dba] || 'Illuminated Computing Inc.'
     end
 
+    def self.payment_due_for_client(data, opts, client)
+      key_for_client(data, client, :payment_due) || opts[:payment_due] || 'upon receipt'
+    end
+
     def self.full_name_for_client(data, opts, client)
       key_for_client(data, client, :full_name)
     end
@@ -260,6 +264,7 @@ module RbInvoice
       opts[:end_date]   = Date.strptime(opts[:end_date], "%Y-%m-%d")    if opts[:end_date]
 
       opts[:dba] = dba_for_client(opts[:data], opts, opts[:client])
+      opts[:payment_due] = payment_due_for_client(opts[:data], opts, opts[:client])
       # Read the list of past invoices.
       # If there are none, assume there is only one invoice to do.
 
