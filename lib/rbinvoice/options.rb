@@ -1,6 +1,7 @@
 require 'yaml'
 require 'trollop'
 require 'rbinvoice/util'
+require 'rbinvoice/version'
 
 module RbInvoice
   module Options
@@ -212,12 +213,13 @@ module RbInvoice
     end
 
     def self.description_for_client(data, opts, client)
-      key_for_client(data, client, :description)
+      desc = key_for_client(data, client, :description)
+      "#{desc} from #{opts[:start_date].strftime("%b %d")} to #{opts[:end_date].strftime("%b %d, %Y")}."
     end
 
     def self.parse_command_line(argv)
       opts = Trollop::options(argv) do
-        version "rbinvoice 0.1.0 (c) 2012 Paul A. Jungwirth"
+        version "rbinvoice #{::RbInvoice::VERSION} (c) 2012 Paul A. Jungwirth"
         banner <<-EOH
           USAGE: rbinvoice [options] <client> [filename]
         EOH
