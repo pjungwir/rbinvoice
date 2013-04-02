@@ -48,6 +48,8 @@ module RbInvoice
                      parse_date(earliest_task_date(hours))
                    end
       start_date, end_date = RbInvoice::Options::find_invoice_bounds(earliest_date, freq)
+      opts[:start_date] = start_date
+      opts[:end_date] = end_date
       tasks = hourly_breakdown(client, start_date, end_date, opts)
       while tasks.size > 0
         filename = RbInvoice::Options::default_out_filename(opts)

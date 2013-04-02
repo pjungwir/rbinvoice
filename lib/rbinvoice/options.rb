@@ -214,7 +214,7 @@ module RbInvoice
 
     def self.description_for_client(data, opts, client)
       desc = key_for_client(data, client, :description)
-      "#{desc} from #{opts[:start_date].strftime("%b %d")} to #{opts[:end_date].strftime("%b %d, %Y")}."
+      "#{desc} from #{opts[:start_date].strftime("%B %-d")} to #{opts[:end_date].strftime("%B %-d, %Y")}."
     end
 
     def self.parse_command_line(argv)
