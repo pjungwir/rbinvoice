@@ -228,8 +228,8 @@ module RbInvoice
         opt :rcfile, "Use an rc file other than ~/.rbinvoicerc", :short => '-r'
         opt :no_rcfile, "Don't read an rc file", :default => false, :short => '-R'
 
-        opt :data_file, "Use a data file other than ~/.rbinvoice", :default => RbInvoice::Options.default_data_file, :short => '-d'
-        opt :no_data_file, "Don't read or write to a data file", :default => false, :short => '-D'
+        opt :data_file, "Use a data file other than ${out_directory}/rbinvoice", :default => nil, :short => '-d'
+        opt :no_data_file, "Don't update the data file", :default => false, :short => '-D'
 
         opt :invoice_number, "Use a specific invoice number", :type => :int, :short => '-n'
         opt :no_write_invoice_number, "Record the invoice number", :default => false, :short => '-N'
@@ -244,7 +244,8 @@ module RbInvoice
       opts[:client] = argv.shift
 
       read_rc_file(opts) unless opts[:no_rcfile]
-      opts[:data] = opts[:no_data_file] ? {} : read_data_file(opts)
+      opts[:data_file] ||= "#{default_out_directory(opts)}/rbinvoice"
+      opts[:data] = read_data_file(opts)
 
       if not opts[:invoice_number] and not last_invoice_number(opts[:data])
         Trollop::die "Can't determine invoice number"
