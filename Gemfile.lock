@@ -61,7 +61,7 @@ GEM
     rspec-mocks (2.11.1)
     ruby-ole (1.2.11.4)
     ruby-rc4 (0.1.5)
-    rubyzip (0.9.9)
+    rubyzip (2.0.0)
     simplecov (0.6.4)
       multi_json (~> 1.0)
       simplecov-html (~> 0.5.3)
